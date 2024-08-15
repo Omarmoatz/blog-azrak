@@ -25,7 +25,7 @@ class Comment(models.Model):
     post = models.ForeignKey( Post, on_delete=models.CASCADE, related_name='comment_post')
     content = models.TextField(max_length=900)
     created_at = models.DateTimeField( auto_now_add=True)
-    parent = ''
+    parent = '   '
 
     def __str__(self):
         return f'{self.user}---{str(self.post)}---{self.content}'
