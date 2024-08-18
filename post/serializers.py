@@ -38,6 +38,7 @@ class PostAddSerializer(serializers.ModelSerializer):
 class CommentRetrieveSerializer(serializers.ModelSerializer):
     # detail_url = serializers.SerializerMethodField( method_name='get_url')
     user = UserSerializer(read_only=True)
+    post = serializers.StringRelatedField()
 
     class Meta:
         model = Comment
@@ -68,9 +69,16 @@ class CommentCreateSerializer(serializers.ModelSerializer):
     
     def update(self, instance, validated_data):
         user = self.context['request'].user
-        print(user)
         if instance.user != user:
             raise PermissionDenied("You do not have permission to update this comment.")
         return super().update(instance, validated_data)
     
 
+class RepliesListSerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)
+    post = serializers.StringRelatedField()
+    parent = CommentRetrieveSerializer()
+
+    class Meta:
+        model = Comment
+        fields = '__all__'

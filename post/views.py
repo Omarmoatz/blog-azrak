@@ -3,7 +3,7 @@ from rest_framework import generics, status, mixins
 from django.shortcuts import get_object_or_404
 
 from .models import Post, Comment
-from .serializers import PostSerializer,PostDetailSerializer,PostAddSerializer, CommentRetrieveSerializer, CommentCreateSerializer
+from .serializers import PostSerializer,PostDetailSerializer,PostAddSerializer, CommentRetrieveSerializer, CommentCreateSerializer, RepliesListSerializer
 
 class PostApiView(generics.GenericAPIView):
     serializer_class = PostSerializer
@@ -59,7 +59,7 @@ class PostApiView(generics.GenericAPIView):
         pk = self.kwargs.get('pk')
         post = get_object_or_404(PostApiView, id=pk)  
         post.delete()  
-        return Response({'detail':'succecfully_deleted'})    
+        return Response({'detail':'succecfully_deleted'}, status=status.HTTP_204_NO_CONTENT)    
 
 
 
@@ -71,7 +71,7 @@ class CommentApiView(generics.GenericAPIView,
 
     def get_queryset(self):
         post_pk = self.kwargs.get('post_pk')
-        queryset =  super().get_queryset().filter(post=post_pk)
+        queryset =  super().get_queryset().filter(post=post_pk, parent=None)
         return queryset
     
     def get_serializer_class(self):        
@@ -88,7 +88,7 @@ class CommentApiView(generics.GenericAPIView,
             return self.get_paginated_response(serializer.data)
 
         serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
     
     def post(self, request, *args, **kwargs):
         post_pk = self.kwargs.get('post_pk')
@@ -100,10 +100,6 @@ class CommentApiView(generics.GenericAPIView,
 
 
         # return self.create(request, *args, **kwargs)
-    
-    # def perform_create(self, serializer):
-    #     post_id = self.kwargs.get('post_id')
-    #     return super().perform_create(serializer, post=post_id)
 
 class CommentRetriveUpdateDeleteApiView(generics.GenericAPIView):
     queryset = Comment.objects.all()
@@ -117,7 +113,7 @@ class CommentRetriveUpdateDeleteApiView(generics.GenericAPIView):
     def get(self, request, *args, **kwargs):
         instance = self.get_object()
         serializer = self.get_serializer(instance)
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
         # return self.retrieve(request, *args, **kwargs)
     
 
@@ -127,7 +123,7 @@ class CommentRetriveUpdateDeleteApiView(generics.GenericAPIView):
         serializer = self.get_serializer(instance, data=request.data, partial=partial, context={'request': request})
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response(serializer.data,status=status.HTTP_200_OK)
+        return Response(serializer.data, status=status.HTTP_200_OK)
         # return self.update(request, *args, **kwargs)
 
     
@@ -136,6 +132,22 @@ class CommentRetriveUpdateDeleteApiView(generics.GenericAPIView):
         instance.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
         # return self.destroy(request, *args, **kwargs)
+
+
+
+class RepliesApiView(generics.GenericAPIView,
+                         mixins.ListModelMixin):
+    queryset = Comment.objects.all()
+    serializer_class = RepliesListSerializer
+
+    def get_queryset(self):
+        comment_id = self.kwargs.get('pk')
+        post_id = self.kwargs.get('post_pk')
+        return super().get_queryset().filter(parent=comment_id, post=post_id)
+    
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
+        
 
 
 
