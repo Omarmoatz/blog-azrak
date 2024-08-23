@@ -139,6 +139,22 @@ class CommentRetriveUpdateDeleteApiView(generics.GenericAPIView):
 
 
 
+class RepliesApiView(generics.GenericAPIView,
+                         mixins.ListModelMixin):
+    queryset = Comment.objects.all()
+    serializer_class = RepliesListSerializer
+
+    def get_queryset(self):
+        comment_id = self.kwargs.get('pk')
+        post_id = self.kwargs.get('post_pk')
+        return super().get_queryset().filter(parent=comment_id, post=post_id)
+    
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
+        
+
+
+
 
 
 
