@@ -149,7 +149,9 @@ class RepliesApiView(generics.GenericAPIView,
         post_id = self.kwargs.get('post_pk')
         return super().get_queryset().filter(parent=comment_id, post=post_id)
 
-        
+    def get(self, request, *args, **kwargs):
+        post = ''
+        return self.list(request, *args, **kwargs)
 
 
 
