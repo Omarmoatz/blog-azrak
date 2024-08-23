@@ -3,7 +3,7 @@ from rest_framework import generics, status, mixins
 from django.shortcuts import get_object_or_404
 
 from .models import Post, Comment
-from .serializers import PostSerializer,PostDetailSerializer,PostAddSerializer, CommentRetrieveSerializer, CommentCreateSerializer
+from .serializers import PostSerializer,PostDetailSerializer,PostAddSerializer, CommentRetrieveSerializer, CommentCreateSerializer, RepliesListSerializer
 
 class PostApiView(generics.GenericAPIView):
     serializer_class = PostSerializer

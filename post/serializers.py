@@ -74,3 +74,11 @@ class CommentCreateSerializer(serializers.ModelSerializer):
         return super().update(instance, validated_data)
     
 
+class RepliesListSerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)
+    post = serializers.StringRelatedField()
+    parent = CommentRetrieveSerializer()
+
+    class Meta:
+        model = Comment
+        fields = '__all__'
