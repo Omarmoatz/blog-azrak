@@ -148,7 +148,8 @@ class RepliesApiView(generics.GenericAPIView,
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
         
-
+    def get_permissions(self):
+        return super().get_permissions()
 
 
 
