@@ -1,6 +1,9 @@
 from rest_framework.response import Response
 from rest_framework import generics, status, mixins
 from django.shortcuts import get_object_or_404
+from django.db.models.functions import Upper
+from django.db.models import Count, Min, Max
+from django.http import HttpResponse
 
 from .models import Post, Comment
 from .serializers import PostSerializer,PostDetailSerializer,PostAddSerializer, CommentRetrieveSerializer, CommentCreateSerializer, RepliesListSerializer
@@ -59,7 +62,7 @@ class PostApiView(generics.GenericAPIView):
         pk = self.kwargs.get('pk')
         post = get_object_or_404(PostApiView, id=pk)  
         post.delete()  
-        return Response({'detail':'succecfully_deleted'}, status=status.HTTP_204_NO_CONTENT)    
+        return Response({'detail':'successfully_deleted'}, status=status.HTTP_204_NO_CONTENT)    
 
 
 
@@ -163,3 +166,8 @@ class RepliesApiView(mixins.ListModelMixin,
 
 
 
+def test(request):
+    posts = Post.objects.aggregate(Count('title'))
+    print(posts)
+    
+    return HttpResponse("hello world")

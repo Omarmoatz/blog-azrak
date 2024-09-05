@@ -1,10 +1,11 @@
 from django.urls import path
 
-from .views import PostApiView, CommentApiView, CommentRetriveUpdateDeleteApiView, RepliesApiView
+from .views import PostApiView, CommentApiView, CommentRetriveUpdateDeleteApiView, RepliesApiView, test
 
 app_name = 'post'
 
 urlpatterns = [
+    path('test/', test),
     path('posts/', PostApiView.as_view(), name='post_list'),
     path('posts/<int:pk>/', PostApiView.as_view(), name='post_detail'),
     path('posts/<int:post_pk>/comments/', CommentApiView.as_view(), name='comment_list'),
