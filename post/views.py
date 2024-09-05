@@ -16,7 +16,7 @@ class PostApiView(generics.GenericAPIView):
             return Response({'data':data})
         
         post = Post.objects.all()
-        data = PostSerializer(post, many=True).data
+        data = PostSerializer(post, many=True, context={'request': request}).data
         
         return Response({'data':data})
 
@@ -84,11 +84,19 @@ class CommentApiView(generics.GenericAPIView,
 
         page = self.paginate_queryset(queryset)
         if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
+            serializer = self.get_serializer(page, many=True, context={'request': request})
+            return self.get_paginated_response({
+                                                'count':queryset.count(),
+                                                'status':status.HTTP_200_OK,
+                                                'data':serializer.data, 
+                                                })
 
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        serializer = self.get_serializer(queryset, many=True, context={'request': request})
+        return Response({
+                        'count':queryset.count(),
+                        'status':status.HTTP_200_OK,
+                        'data':serializer.data, 
+                        })
     
     def post(self, request, *args, **kwargs):
         post_pk = self.kwargs.get('post_pk')
@@ -135,8 +143,9 @@ class CommentRetriveUpdateDeleteApiView(generics.GenericAPIView):
 
 
 
-class RepliesApiView(generics.GenericAPIView,
-                         mixins.ListModelMixin):
+class RepliesApiView(mixins.ListModelMixin,
+                     generics.GenericAPIView):
+    
     queryset = Comment.objects.all()
     serializer_class = RepliesListSerializer
 
@@ -145,8 +154,7 @@ class RepliesApiView(generics.GenericAPIView,
         post_id = self.kwargs.get('post_pk')
         return super().get_queryset().filter(parent=comment_id, post=post_id)
     
-    def get(self, request, *args, **kwargs):
-        return self.list(request, *args, **kwargs)
+
         
     def get_permissions(self):
         return super().get_permissions()

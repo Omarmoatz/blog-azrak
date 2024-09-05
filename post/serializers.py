@@ -6,13 +6,18 @@ from users.serializers import UserSerializer
 from .models import Post, Comment
 
 class PostSerializer(serializers.ModelSerializer):
-    # detail_url = serializers.HyperlinkedIdentityField(
-    #     view_name='post_detail',
-    #     lookup_field='pk'
-    # )
+    detail_url = serializers.HyperlinkedIdentityField(
+        view_name='post:post_detail',
+        lookup_field='pk'
+    )
     class Meta:
         model = Post
-        fields = ('id', 'title', 'created_at',)
+        fields = (
+                    'id',
+                    'title', 
+                    'created_at',
+                    'detail_url',
+                )
 
 
 class PostDetailSerializer(serializers.ModelSerializer):
@@ -77,8 +82,12 @@ class CommentCreateSerializer(serializers.ModelSerializer):
 class RepliesListSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
     post = serializers.StringRelatedField()
-    parent = CommentRetrieveSerializer()
+    parent = CommentRetrieveSerializer(read_only=True)
 
     class Meta:
         model = Comment
         fields = '__all__'
+
+    # def create(self, validated_data):
+    #     post_id = ''
+    #     return super().create(validated_data)
